@@ -26,7 +26,7 @@ const schema = Joi.object({
 router.get("/", async (req, res, next) => {
   try {
     const contacts = await listContacts();
-    res.json(contacts);
+    res.json({ contacts, contactsCount: contacts.length });
   } catch (error) {
     next(error);
   }
