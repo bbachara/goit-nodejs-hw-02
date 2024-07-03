@@ -12,7 +12,7 @@ const router = express.Router();
 
 const schema = Joi.object({
   name: Joi.string().required().messages({
-    "any.required": "Missing required name field",
+    "any.required": "Missing required name fields",
   }),
   email: Joi.string().email().required().messages({
     "any.required": "Missing required email field",
