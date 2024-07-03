@@ -14,7 +14,7 @@ const get = async (req, res, next) => {
     res.json({
       status: "success",
       code: 200,
-      data: { contacts: results },
+      data: { contacts: results.map((contact) => contact.toJSON()) },
     });
   } catch (error) {
     console.error("Error fetching contacts: ", error);
@@ -30,7 +30,7 @@ const getById = async (req, res, next) => {
       res.json({
         status: "success",
         code: 200,
-        data: { contact: result },
+        data: { contact: result.toJSON() },
       });
     } else {
       res.status(404).json({
@@ -47,7 +47,7 @@ const getById = async (req, res, next) => {
 };
 
 const create = async (req, res, next) => {
-  const { name, email, phone } = req.body;
+  const { name, email, phone, favorite } = req.body;
   try {
     const { error } = contactSchema.validate(req.body);
     if (error) {
@@ -58,11 +58,16 @@ const create = async (req, res, next) => {
       });
     }
 
-    const result = await service.createContact({ name, email, phone });
+    const result = await service.createContact({
+      name,
+      email,
+      phone,
+      favorite,
+    });
     res.status(201).json({
       status: "success",
       code: 201,
-      data: { contact: result },
+      data: { contact: result.toJSON() },
     });
   } catch (error) {
     console.error("Error adding contact: ", error);
@@ -72,7 +77,10 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { id } = req.params;
-  const { name, email, phone } = req.body;
+  const { name, email, phone, favorite } = req.body;
+
+  console.log("Received payload for update:", req.body);
+
   try {
     const { error } = contactSchema.validate(req.body);
     if (error) {
@@ -83,12 +91,17 @@ const update = async (req, res, next) => {
       });
     }
 
-    const result = await service.updateContact(id, { name, email, phone });
+    const result = await service.updateContact(id, {
+      name,
+      email,
+      phone,
+      favorite,
+    });
     if (result) {
       res.json({
         status: "success",
         code: 200,
-        data: { contact: result },
+        data: { contact: result.toJSON() },
       });
     } else {
       res.status(404).json({
@@ -122,7 +135,7 @@ const updateStatus = async (req, res, next) => {
       res.json({
         status: "success",
         code: 200,
-        data: { contact: result },
+        data: { contact: result.toJSON() },
       });
     } else {
       res.status(404).json({
@@ -145,7 +158,7 @@ const remove = async (req, res, next) => {
       res.json({
         status: "success",
         code: 200,
-        data: { contact: result },
+        data: { contact: result.toJSON() },
       });
     } else {
       res.status(404).json({
