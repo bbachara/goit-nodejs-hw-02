@@ -1,24 +1,28 @@
 const Contact = require("./schemas/contact");
 
-const getAllContacts = async () => {
-  return await Contact.find({});
+
+const getAllContacts = async (userId) => {
+  return await Contact.find({ owner: userId });
 };
 
-const getContactById = async (id) => {
-  return await Contact.findById(id);
+const getContactById = async (userId, id) => {
+  return await Contact.findOne({ _id: id, owner: userId });
 };
 
-const createContact = async (contactData) => {
-  const contact = new Contact(contactData);
-  return await contact.save();
+const createContact = async (userId, { name, email, phone, favorite }) => {
+  return await Contact.create({ name, email, phone, favorite, owner: userId });
 };
 
-const updateContact = async (id, updateData) => {
-  return await Contact.findByIdAndUpdate(id, updateData, { new: true });
+const updateContact = async (userId, id, fields) => {
+  return await Contact.findOneAndUpdate({ _id: id, owner: userId }, fields, {
+    new: true,
+    runValidators: true,
+  });
 };
 
-const removeContact = async (id) => {
-  return await Contact.findByIdAndDelete(id);
+const removeContact = async (userId, id) => {
+  return await Contact.findOneAndDelete({ _id: id, owner: userId });
+
 };
 
 module.exports = {
