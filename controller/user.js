@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const passport = require("passport");
 const User = require("../service/schemas/user");
 
 const register = async (req, res, next) => {
@@ -25,52 +26,33 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+  passport.authenticate("jwt", { session: false }, (err, user, info) => {
+    if (err || !user) {
       return res.status(401).json({ message: "Email or password is wrong" });
     }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    req.login(user, { session: false }, async (err) => {
+      if (err) {
+        return next(err);
+      }
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      await User.findByIdAndUpdate(user._id, { token });
+      return res.json({ token });
     });
-    user.token = token;
-    await user.save();
-
-    res.json({
-      token,
-      user: {
-        email: user.email,
-        subscription: user.subscription,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+  })(req, res);
 };
 
 const logout = async (req, res, next) => {
-  try {
-    const user = req.user;
-    user.token = null;
-    await user.save();
-    res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
+  req.logout();
+  res.status(204).send();
 };
 
 const getCurrent = async (req, res, next) => {
-  try {
-    const { email, subscription } = req.user;
-    res.json({
-      email,
-      subscription,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.json({
+    email: req.user.email,
+    subscription: req.user.subscription,
+  });
 };
 
 module.exports = {
