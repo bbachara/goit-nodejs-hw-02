@@ -10,14 +10,13 @@ const contactSchema = Joi.object({
 
 const get = async (req, res, next) => {
   try {
-    const results = await service.getAllContacts();
+    const results = await service.getAllContacts(req.user.id);
     res.json({
       status: "success",
       code: 200,
       data: { contacts: results },
     });
   } catch (error) {
-    console.error("Error fetching contacts: ", error);
     next(error);
   }
 };
@@ -25,7 +24,7 @@ const get = async (req, res, next) => {
 const getById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const result = await service.getContactById(id);
+    const result = await service.getContactById(req.user.id, id);
     if (result) {
       res.json({
         status: "success",
@@ -41,7 +40,6 @@ const getById = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error("Error finding contact: ", error);
     next(error);
   }
 };
@@ -58,14 +56,17 @@ const create = async (req, res, next) => {
       });
     }
 
-    const result = await service.createContact({ name, email, phone });
+    const result = await service.createContact(req.user.id, {
+      name,
+      email,
+      phone,
+    });
     res.status(201).json({
       status: "success",
       code: 201,
       data: { contact: result },
     });
   } catch (error) {
-    console.error("Error adding contact: ", error);
     next(error);
   }
 };
@@ -83,7 +84,11 @@ const update = async (req, res, next) => {
       });
     }
 
-    const result = await service.updateContact(id, { name, email, phone });
+    const result = await service.updateContact(req.user.id, id, {
+      name,
+      email,
+      phone,
+    });
     if (result) {
       res.json({
         status: "success",
@@ -99,7 +104,6 @@ const update = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error("Error updating contact: ", error);
     next(error);
   }
 };
@@ -117,7 +121,7 @@ const updateStatus = async (req, res, next) => {
   }
 
   try {
-    const result = await service.updateContact(id, { favorite });
+    const result = await service.updateContact(req.user.id, id, { favorite });
     if (result) {
       res.json({
         status: "success",
@@ -140,7 +144,7 @@ const updateStatus = async (req, res, next) => {
 const remove = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const result = await service.removeContact(id);
+    const result = await service.removeContact(req.user.id, id);
     if (result) {
       res.json({
         status: "success",
@@ -156,7 +160,6 @@ const remove = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error("Error removing contact: ", error);
     next(error);
   }
 };

@@ -8,14 +8,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const routerApi = require("./routes/api");
-app.use("/api/contacts", routerApi);
+const contactsRouter = require("./routes/api/contacts");
+const usersRouter = require("./routes/api/users");
+
+app.use("/api/contacts", contactsRouter);
+app.use("/api/users", usersRouter);
 
 app.use((_, res) => {
   res.status(404).json({
     status: "error",
     code: 404,
-    message: "Use api on routes: /api/contacts",
+    message: "Use api on routes: /api/contacts or /api/users",
     data: "Not found",
   });
 });
@@ -39,7 +42,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Database connection successful ok");
+    console.log("Database connection successful");
     app.listen(PORT, () => {
       console.log(`Server running on port: ${PORT}`);
     });
