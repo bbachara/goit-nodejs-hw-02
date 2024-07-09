@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ctrlContact = require("../../controller/index");
+const ctrlContact = require("../../controller/contacts");
 const auth = require("../../middleware/auth");
 
 router.get("/", auth, ctrlContact.get);
