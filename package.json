@@ -7,7 +7,8 @@
     "start:dev": "cross-env NODE_ENV=development nodemon ./server.js",
     "dev": "npm run start:dev",
     "lint": "eslint **/*.js",
-    "lint:fix": "eslint --fix **/*.js"
+    "lint:fix": "eslint --fix **/*.js",
+    "type": "module"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -22,6 +23,7 @@
     "mongoose": "^8.4.4",
     "morgan": "1.10.0",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "uuid": "^10.0.0"

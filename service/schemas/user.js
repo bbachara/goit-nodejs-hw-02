@@ -1,34 +1,35 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const gravatar = require("gravatar");
+const { Schema, model } = require("mongoose");
 
 const userSchema = new Schema({
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
   email: {
     type: String,
     required: [true, "Email is required"],
     unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, "Password is required"],
   },
   subscription: {
     type: String,
     enum: ["starter", "pro", "business"],
     default: "starter",
   },
+  avatarURL: String,
   token: {
     type: String,
     default: null,
   },
-  avatarURL: {
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
     type: String,
-    default: function () {
-      return gravatar.url(this.email, { s: "250", d: "identicon" }, true);
-    },
+    default: null,
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const User = model("user", userSchema);
 
 module.exports = User;
