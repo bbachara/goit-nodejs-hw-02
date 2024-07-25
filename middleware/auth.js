@@ -1,26 +1,27 @@
-const passport = require("passport");
-const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
+const jwt = require("jsonwebtoken");
 const User = require("../service/schemas/user");
 
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
+const auth = async (req, res, next) => {
+  const { authorization = "" } = req.headers;
+  const [bearer, token] = authorization.split(" ");
 
-passport.use(
-  new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
-    try {
-      const user = await User.findById(jwtPayload.id);
-      if (!user || !user.token) {
-        return done(null, false);
-      }
-      return done(null, user);
-    } catch (error) {
-      return done(error, false);
+  if (bearer !== "Bearer" || !token) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
+  try {
+    const { id } = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(id);
+
+    if (!user || !user.token) {
+      return res.status(401).json({ message: "Not authorized" });
     }
-  })
-);
 
-const auth = passport.authenticate("jwt", { session: false });
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+};
 
 module.exports = auth;
